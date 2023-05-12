@@ -1,28 +1,31 @@
 const canvas = document.querySelector('canvas')
 
-const ctx = canvas.getContext('2d')
+const c = canvas.getContext('2d')
 
 // Set the canvas size to the window size
     canvas.width = 1024
     canvas.height = 576
     
     const collisionsMap = []
-    for (i = 0; i < collisions.length; i+= 70) {
+    for (let i = 0; i < collisions.length; i += 70) {
         collisionsMap.push(collisions.slice(i, 70 + i))
     }
-
     class Boundary {
-        constructor({position}) {
+        static width = 48
+        static height = 48
+        constructor({ position }) {
             this.position = position
             this.width = 48
             this.height = 48
         }
 
         draw() {
-            ctx.fillStyle = 'red'
-            ctx.fillRect(this.position.x, this.position.y, this.width, this.height)
+            c.fillStyle = 'red'
+            c.fillRect(this.position.x, this.position.y, this.width, this.height)
         }
+        
     }
+    
 
     const boundaries = []
     const offset = {
@@ -32,36 +35,59 @@ const ctx = canvas.getContext('2d')
 
     collisionsMap.forEach((row, i) => {
         row.forEach((symbol, j) => {
-            if (symbol === 1025)
-            boundaries.push(new Boundary({position: {
-                x: j * Boundary.width + offset.x, 
-                y: i * Boundary.height + offset.y
-                 }
-                })
-             )
+          if (symbol === 1025)
+            boundaries.push(
+              new Boundary({
+                position: {
+                  x: j * Boundary.width + offset.x,
+                  y: i * Boundary.height + offset.y
+                }
+              })
+            )
         })
-     })
+      })
 
 
-    const player = new Image()
-    player.src = 'images/PlayerDown.png'
+    const playerImage = new Image()
+    playerImage.src = 'images/PlayerDown.png'
 
     const image = new Image()
     image.src = 'images/Pellet town.png'
 
     class Sprite {
-        constructor({position, velocity, image}) {
+        constructor({position, velocity, image, frames = {max: 1}}) {
             this.position = position
             this.image = image
+            this.frames = frames
         }
     
 
         draw() {
-            ctx.drawImage(this.image, this.position.x, this.position.y)
+            c.drawImage(this.image, this.position.x, this.position.y)
+            c.drawImage(
+                this.image,
+                0,
+                0,
+                this.image.width / this.frames.max,
+                this.image.height,
+                this.position.x,
+                this.position.y,
+                this.image.width / this.frames.max,
+                this.image.height
+            ) 
         }
     }
 
-    
+   
+
+    const player = new Sprite({
+        position: {
+            x: canvas.width / 2 - 192 / 4,
+            y: canvas.height / 2 - 68 / 2
+        },
+        image: playerImage,
+    })
+
 
     const background = new Sprite({
         position: {
@@ -88,30 +114,43 @@ const ctx = canvas.getContext('2d')
         }
     }
 
+ const testBoundary = new Boundary({
+        position: {
+            x: 400,
+            y: 400
+        }
+    })
 
+    const movables = [background, testBoundary]
  function animate() { 
      window.requestAnimationFrame(animate)
-        background.draw(),
-        boundaries.forEach(Boundary => {
-            Boundary.draw
-        })
-        ctx.drawImage(
-            player,
-            0,
-            0,
-            player.width / 4,
-            player.height,
-            canvas.width / 2 - player.width / 4,
-            canvas.height / 2 - player.height / 2,
-            player.width / 4,
-            player.height
-        ) 
+        background.draw()
+        //boundaries.forEach(Boundary => {
+            //Boundary.draw()
+        //})
+        testBoundary.draw()
+        player.draw()
 
-        if (keys.w.pressed ) background.position.y += 3
-        if (keys.a.pressed ) background.position.x += 3
-        if (keys.s.pressed ) background.position.y -= 3
-        if (keys.d.pressed ) background.position.x -= 3
+       // if (player.position.x + player.width)
+
+        if (keys.w.pressed ) {
+            movables.forEach((movable) => {
+             movable.position.y += 3
+        })}
+        if (keys.a.pressed ) { 
+            movables.forEach((movable) => {
+            movable.position.x += 3
+        })}
+        if (keys.s.pressed ) { 
+            movables.forEach((movable) => {
+            movable.position.y -= 3
+        })}
+        if (keys.d.pressed ) { 
+            movables.forEach((movable) => {
+            movable.position.x -= 3
+        })}
     }
+ 
     animate()
 
 // Key tracker
