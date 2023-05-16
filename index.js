@@ -121,7 +121,7 @@ const c = canvas.getContext('2d')
         }
     })
 
-    const movables = [background, testBoundary]
+    const movables = [background, testBoundary]   
  function animate() { 
      window.requestAnimationFrame(animate)
         background.draw()
